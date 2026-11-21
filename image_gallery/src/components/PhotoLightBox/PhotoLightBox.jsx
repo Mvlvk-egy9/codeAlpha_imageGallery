@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
@@ -13,6 +13,13 @@ export default function PhotoLightbox({
 }) {
   const [downloading, setDownloading] = useState(false);
   const [downloadToast, setDownloadToast] = useState("");
+  const [slideIndex, setSlideIndex] = useState(activeIndex ?? 0);
+
+  useEffect(() => {
+    if (activeIndex !== null) {
+      setSlideIndex(activeIndex);
+    }
+  }, [activeIndex]);
 
   const slides = photos.map((photo) => ({
     src: photo.src,
@@ -21,7 +28,7 @@ export default function PhotoLightbox({
   }));
 
   const currentPhoto =
-    activeIndex !== null && photos[activeIndex] ? photos[activeIndex] : null;
+    activeIndex !== null && photos[slideIndex] ? photos[slideIndex] : null;
 
   function notifyDownload(message) {
     setDownloadToast(message);
@@ -54,10 +61,10 @@ export default function PhotoLightbox({
       link.remove();
       URL.revokeObjectURL(blobUrl);
 
-      notifyDownload("");
+      notifyDownload("تم التحميل بنجاح!");
     } catch {
       window.open(photo.src, "_blank", "noopener,noreferrer");
-      notifyDownload("");
+      notifyDownload("تم فتح الصورة للتحميل!");
     } finally {
       setDownloading(false);
     }
@@ -68,9 +75,12 @@ export default function PhotoLightbox({
       <Lightbox
         open={activeIndex !== null}
         close={onClose}
-        index={activeIndex ?? 0}
+        index={slideIndex}
         slides={slides}
         plugins={[Zoom]}
+        on={{
+          view: ({ index }) => setSlideIndex(index),
+        }}
         zoom={{
           maxZoomPixelRatio: 3,
           scrollToZoom: true,

@@ -22,7 +22,7 @@ export default function LightboxModal({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose, onNext, onPrev]);
-
+  
   if (!isOpen || !photo) return null;
 
   return (
